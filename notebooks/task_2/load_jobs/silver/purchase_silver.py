@@ -9,8 +9,8 @@ from task_2.utils.transform_utils import validate_and_enforce_schema, deduplicat
 
 # Define the expected schema
 schema = StructType([
-    StructField("purchaseid", LongType(), nullable=False),
-    StructField("consumerid", LongType(), nullable=False),
+    StructField("purchase_id", LongType(), nullable=False),
+    StructField("consumer_id", LongType(), nullable=False),
     StructField("graphed_date", DateType(), nullable=False),
     StructField("avocado_bunch_id", IntegerType(), nullable=True),
     StructField("reporting_year", IntegerType(), nullable=True),
@@ -20,12 +20,12 @@ schema = StructType([
     StructField("price_index", IntegerType(), nullable=True),
     StructField("raw_file_name", StringType(), nullable=True),
     StructField("load_timestamp", TimestampType(), nullable=True),
-    StructField("updated_at", TimestampType(), nullable=True)  # Add updated_at column
+    StructField("updated_at", TimestampType(), nullable=True)
 ])
 
-bronze_table = "tendo.bronze.purchase"
-silver_table = "tendo.silver.purchase"
-error_logs_table = "tendo.silver.purchase_error_logs"
+bronze_table = "data_engineering.purchase_bronze"
+silver_table = "data_engineering.purchase_silver"
+error_logs_table = "data_engineering.purchase_error_logs_silver"
 
 # Read data from the Bronze layer
 df = spark.read.format("delta").table(bronze_table)
@@ -37,17 +37,17 @@ df = df.withColumn("updated_at", current_timestamp())
 df_validated = validate_and_enforce_schema(df, schema)
 
 # Deduplicate data on primary key
-df_deduped = deduplicate_data(df_validated, ["purchaseid"])
+df_deduped = deduplicate_data(df_validated, ["purchase_id"])
 
 # Identify rows failing data quality checks
 invalid_rows = df_validated.filter(
-    col("consumerid").isNull()
+    col("consumer_id").isNull()
 ).withColumn("error_reason", lit("Null values in required columns"))
 
 # Filter valid rows
 df_clean = df_deduped.filter(
-    col("purchaseid").isNotNull() &
-    col("consumerid").isNotNull()
+    col("purchase_id").isNotNull() &
+    col("consumer_id").isNotNull()
 )
 
 # Ensure the schema matches before merging
@@ -62,7 +62,7 @@ else:
     delta_table.alias("t") \
         .merge(
             df_clean.alias("s"),
-            "t.purchaseid = s.purchaseid"
+            "t.purchase_id = s.purchase_id"
         ) \
         .whenMatchedUpdateAll() \
         .whenNotMatchedInsertAll() \

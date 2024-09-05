@@ -1,8 +1,6 @@
 use database data_engineering;
 
-create schema if not exists data_engineering.silver;
-
-create table if not exists data_engineering.silver.consumer (
+create table if not exists data_engineering.consumer_silver (
   consumer_id long,
   sex string,
   ethnicity string,
@@ -13,7 +11,7 @@ create table if not exists data_engineering.silver.consumer (
   updated_at timestamp
 ) using delta;
 
-create table if not exists data_engineering.silver.purchase (
+create table if not exists data_engineering.purchase_silver (
   purchase_id long,
   consumer_id long,
   graphed_date date,
@@ -28,7 +26,7 @@ create table if not exists data_engineering.silver.purchase (
   updated_at timestamp
 ) using delta;
 
-create table if not exists data_engineering.silver.avocado (
+create table if not exists data_engineering.avocado_silver (
   purchase_id long,
   consumer_id long,
   avocado_bunch_id int,
@@ -42,7 +40,7 @@ create table if not exists data_engineering.silver.avocado (
   updated_at timestamp
 ) using delta;
 
-create table if not exists data_engineering.silver.fertilizer (
+create table if not exists data_engineering.fertilizer_silver (
   fertilizer_id long,
   purchase_id long,
   consumer_id long,

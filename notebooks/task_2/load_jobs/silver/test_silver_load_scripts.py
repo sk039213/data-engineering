@@ -21,10 +21,10 @@ schema = StructType([
 ])
 
 script_name = "avocado_silver"
-spark = SparkSession.builder.appName("AvocadoSilverLayer").getOrCreate()
+spark = SparkSession.builder.appName("avocado_silver_layer").getOrCreate()
 
-bronze_table = "data_engineering.bronze.avocado"
-silver_table = "data_engineering.silver.avocado"
+bronze_table = "data_engineering.avocado_bronze"
+silver_table = "data_engineering.avocado_silver"
 
 # Read data from the Bronze layer
 df = spark.read.format("delta").table(bronze_table)

@@ -9,9 +9,9 @@ from task_2.utils.transform_utils import validate_and_enforce_schema, deduplicat
 
 # Define the expected schema
 schema = StructType([
-    StructField("purchaseid", LongType(), False),
-    StructField("consumerid", LongType(), False),
-    StructField("fertilizerid", LongType(), False),
+    StructField("purchase_id", LongType(), False),
+    StructField("consumer_id", LongType(), False),
+    StructField("fertilizer_id", LongType(), False),
     StructField("type", StringType(), True),
     StructField("mg", IntegerType(), True),
     StructField("frequency", StringType(), True),
@@ -22,9 +22,9 @@ schema = StructType([
 
 
 
-bronze_table = "tendo.bronze.fertilizer"
-silver_table = "tendo.silver.fertilizer"
-error_logs_table = "tendo.silver.fertilizer_error_logs"
+bronze_table = "data_engineering.fertilizer_bronze"
+silver_table = "data_engineering.fertilizer_silver"
+error_logs_table = "data_engineering.fertilizer_error_logs_silver"
 
 
 # Read data from the Bronze layer
@@ -37,20 +37,20 @@ df = df.withColumn("updated_at", current_timestamp())
 df_validated = validate_and_enforce_schema(df, schema)
 
 # Deduplicate data on primary key
-df_deduped = deduplicate_data(df_validated, ["fertilizerid"])
+df_deduped = deduplicate_data(df_validated, ["fertilizer_id"])
 
 # Identify rows failing data quality checks
 invalid_rows = df_validated.filter(
-    col("purchaseid").isNull() |
-    col("consumerid").isNull() |
-    col("fertilizerid").isNotNull()        
+    col("purchase_id").isNull() |
+    col("consumer_id").isNull() |
+    col("fertilizer_id").isNotNull()        
 ).withColumn("error_reason", lit("Null values in required columns"))
 
 # Data quality checks
 df_clean = df_deduped.filter(
-    col("purchaseid").isNotNull() &
-    col("consumerid").isNotNull() &
-    col("fertilizerid").isNotNull()
+    col("purchase_id").isNotNull() &
+    col("consumer_id").isNotNull() &
+    col("fertilizer_id").isNotNull()
 )
 
 # Ensure the schema matches before merging
@@ -65,7 +65,7 @@ else:
     delta_table.alias("t") \
         .merge(
             df_clean.alias("s"),
-            "t.fertilizerid = s.fertilizerid"
+            "t.fertilizer_id = s.fertilizer_id"
         ) \
         .whenMatchedUpdateAll() \
         .whenNotMatchedInsertAll() \

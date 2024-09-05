@@ -3,14 +3,14 @@ from pyspark.sql.functions import col, datediff, current_timestamp
 from delta.tables import DeltaTable
 
 # Initialize Spark session
-spark = SparkSession.builder.appName("GenerateGoldLayer").getOrCreate()
+spark = SparkSession.builder.appName("gold_layer").getOrCreate()
 
 # Table names
-silver_avocado_table = "data_engineering.silver.avocado"
-silver_consumer_table = "data_engineering.silver.consumer"
-silver_fertilizer_table = "data_engineering.silver.fertilizer"
-silver_purchase_table = "data_engineering.silver.purchase"
-gold_table = "data_engineering.gold.final_output"
+silver_avocado_table = "data_engineering.avocado_silver"
+silver_consumer_table = "data_engineering.consumer_silver"
+silver_fertilizer_table = "data_engineering.fertilizer_silver"
+silver_purchase_table = "data_engineering.purchase_silver"
+gold_table = "data_engineering.output_gold"
 
 # Read data from the Silver tables
 consumer_df = spark.read.format("delta").table(silver_consumer_table)
@@ -27,18 +27,18 @@ fertilizer_df = fertilizer_df.withColumnRenamed("type", "fertilizer_type")
 
 # Join the tables and drop the join columns to avoid ambiguity
 consumer_purchase_df = consumer_df.alias("c") \
-    .join(purchase_df.alias("p"), "consumerid", how="outer") \
-    .drop(purchase_df["consumerid"])
+    .join(purchase_df.alias("p"), "consumer_id", how="outer") \
+    .drop(purchase_df["consumer_id"])
 
 consumer_purchase_avocado_df = consumer_purchase_df.alias("cp") \
-    .join(avocado_df.alias("a"), ["purchaseid", "consumerid"], how="outer") \
-    .drop(avocado_df["purchaseid"]) \
-    .drop(avocado_df["consumerid"])
+    .join(avocado_df.alias("a"), ["purchase_id", "consumer_id"], how="outer") \
+    .drop(avocado_df["purchase_id"]) \
+    .drop(avocado_df["consumer_id"])
 
 final_df = consumer_purchase_avocado_df.alias("cpa") \
-    .join(fertilizer_df.alias("f"), ["purchaseid", "consumerid"], how="outer") \
-    .drop(fertilizer_df["purchaseid"])
-    .drop(fertilizer_df["consumerid"])
+    .join(fertilizer_df.alias("f"), ["purchase_id", "consumer_id"], how="outer") \
+    .drop(fertilizer_df["purchase_id"])
+    .drop(fertilizer_df["consumer_id"])
 
 # Select the required columns and add updated_at column
 output_df = final_df.select(

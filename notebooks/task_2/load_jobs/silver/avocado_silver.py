@@ -7,9 +7,9 @@ from pyspark.sql.types import StructType, StructField, LongType, IntegerType, Da
 from delta.tables import DeltaTable
 from task_2.utils.transform_utils import validate_and_enforce_schema, deduplicate_data, log_error
 
-bronze_table = "data_engineering.bronze.avocado"
-silver_table = "data_engineering.silver.avocado"
-error_logs_table = "data_engineering.silver.avocado_error_logs"
+bronze_table = "data_engineering.avocado_bronze"
+silver_table = "data_engineering.avocado_silver"
+error_logs_table = "data_engineering.avocado_error_logs_silver"
 
 
 # Define the expected schema

@@ -20,9 +20,9 @@ schema = StructType([
 ])
 
 
-bronze_table = "tendo.bronze.consumer"
-silver_table = "tendo.silver.consumer"
-error_logs_table = "tendo.silver.purchase_error_logs"
+bronze_table = "data_engineering.consumer_bronze"
+silver_table = "data_engineering.silver.consumer_silver"
+error_logs_table = "data_engineering.purchase_error_logs_silver"
 
 
 # Read data from the Bronze layer
@@ -44,7 +44,7 @@ df_clean = df_deduped.filter(
 
 # Identify rows failing data quality checks
 invalid_rows = df_validated.filter(
-    col("consumerid").isNull()
+    col("consumer_id").isNull()
 ).withColumn("error_reason", lit("Null values in required columns"))
 
 # Ensure the schema matches before merging
@@ -59,7 +59,7 @@ else:
     delta_table.alias("t") \
         .merge(
             df_clean.alias("s"),
-            "t.consumerid = s.consumerid"
+            "t.consumer_id = s.consumer_id"
         ) \
         .whenMatchedUpdateAll() \
         .whenNotMatchedInsertAll() \

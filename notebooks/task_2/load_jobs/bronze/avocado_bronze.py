@@ -1,11 +1,11 @@
 # Databricks notebook source
 from pyspark.sql.functions import col, current_timestamp
 
-checkpoint_path = f"/tmp/{username}/_checkpoint/etl_quickstart"
-file_path = "dbfs:/FileStore/tables/bronze/avocado"
-ddl_path = "ddl/bronze_dataset.sql"
-table_name = f"data_engineering.bronze.avocado"
 username = spark.sql("select regexp_replace(current_user(), '[^a-zA-Z0-9]', '_')").first()[0]
+checkpoint_path = f"/tmp/{username}/_checkpoint/etl_quickstart"
+file_path = "/Volumes/data_engineering/data_engineering/customer_data"
+table_name = f"data_engineering.avocado_bronze"
+
 
 df = (spark.readStream
   .format("cloudFiles")
@@ -19,7 +19,7 @@ df = (spark.readStream
           col("consumerid").alias("consumer_id"),
           col("purchaseid").alias("purchase_id"),
           "avocado_bunch_id",
-          "plu", 
+          "plu",
           col("ripe index when picked").alias("ripe_index_when_picked"),
           col("born_date").alias("born_at"),
           col("picked_date").alias("picked_at"),

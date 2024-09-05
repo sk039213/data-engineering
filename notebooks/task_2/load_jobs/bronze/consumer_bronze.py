@@ -1,11 +1,10 @@
 # Databricks notebook source
 from pyspark.sql.functions import col, current_timestamp
 
-checkpoint_path = f"/tmp/{username}/_checkpoint/etl_quickstart"
-file_path = "dbfs:/FileStore/tables/bronze/consumer"
-ddl_path = "ddl/bronze_dataset.sql"
-table_name = "data_engineering.bronze.consumer"
 username = spark.sql("select regexp_replace(current_user(), '[^a-zA-Z0-9]', '_')").first()[0]
+checkpoint_path = f"/tmp/{username}/_checkpoint/etl_quickstart"
+file_path = "/Volumes/data_engineering/data_engineering/customer_data"
+table_name = "data_engineering.consumer_bronze"
 
 df = (spark.readStream
   .format("cloudFiles")

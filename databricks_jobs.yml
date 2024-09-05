@@ -40,7 +40,7 @@ resources:
           depends_on:
             - task_key: fertilizer_bronze
           notebook_task:
-            notebook_path: task_2/load_scripts/silver/consumer_silver
+            notebook_path: task_2/load_scripts/silver/fertilizer_silver
             source: GIT
           job_cluster_key: Job_cluster
         - task_key: purchase_bronze
@@ -52,51 +52,17 @@ resources:
           depends_on:
             - task_key: purchase_bronze
           notebook_task:
-            notebook_path: task_2/load_scripts/silver/consumer_silver
+            notebook_path: task_2/load_scripts/silver/purchase_silver
             source: GIT
           job_cluster_key: Job_cluster
-        - task_key: ML_model_1
-          depends_on:
-            - task_key: purchase_silver
-            - task_key: avocado_silver
-            - task_key: fertilizer_silver
-            - task_key: consumer_silver
-          notebook_task:
-            notebook_path: ml_model_1
-            source: GIT
-          job_cluster_key: Job_cluster
-        - task_key: ml_model_gold
-          depends_on:
-            - task_key: ML_model_1
-          notebook_task:
-            notebook_path: ml_model_final
-            source: GIT
-          job_cluster_key: Job_cluster
-        - task_key: ds_algorithm_2
-          depends_on:
-            - task_key: purchase_silver
-            - task_key: avocado_silver
-            - task_key: fertilizer_silver
-            - task_key: consumer_silver
-          notebook_task:
-            notebook_path: ml_model_1
-            source: GIT
-          job_cluster_key: Job_cluster
-        - task_key: ds_algo_gold
-          depends_on:
-            - task_key: ds_algorithm_2
-          notebook_task:
-            notebook_path: ds_algo_final
-            source: GIT
-          job_cluster_key: Job_cluster
-        - task_key: gold_output
+        - task_key: output_gold
           depends_on:
             - task_key: avocado_silver
             - task_key: consumer_silver
             - task_key: fertilizer_silver
             - task_key: purchase_silver
           notebook_task:
-            notebook_path: task_2/load_scripts/gold/create_gold_output
+            notebook_path: task_2/load_scripts/gold/final_output_gold
             source: GIT
           job_cluster_key: Job_cluster
       job_clusters:
@@ -107,7 +73,7 @@ resources:
             aws_attributes:
               first_on_demand: 1
               availability: SPOT_WITH_FALLBACK
-              zone_id: us-west-2b
+              zone_id: us-east-2a
               spot_bid_price_percent: 100
               ebs_volume_count: 0
             node_type_id: r6id.xlarge
